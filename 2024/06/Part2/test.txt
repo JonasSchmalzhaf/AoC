@@ -1,0 +1,73 @@
+....#.....
+.........#
+..........
+..#.......
+.......#..
+..........
+.#..^.....
+........#.
+#.........
+......#...
+
+var guardStartPosition = [0, 0];
+            var guardStartDirection = [0 , 0];
+            map = inputString.split("\n");
+            
+            // Get Start Position
+            map.forEach((row, Y) => {
+                row.split('').forEach((element, X) => {
+                    switch (element) {
+                        case "^":
+                            guardStartPosition = [X, Y];
+                            guardStartDirection = [0, -1];
+                            break;
+                        case ">":
+                            guardStartPosition = [X, Y];
+                            guardStartDirection = [1, 0];
+                            break;
+                        case "<":
+                            guardStartPosition = [X, Y];
+                            guardStartDirection = [-1, 0];
+                            break;
+                        case "v":
+                            guardStartPosition = [X, Y];
+                            guardStartDirection = [1, 0];
+                            break;
+                    }
+                });
+                
+            });
+
+            var guardPosition = guardStartPosition.slice(0);
+            var guardDirection = guardStartDirection.slice(0);
+
+            map.forEach((row, Y) => {
+                row.split('').forEach((character, X) =>{
+                    if (character == "." && JSON.stringify([X, Y]) !== JSON.stringify(guardStartPosition)) {
+                        map[Y] = map[Y].substring(0, X)+"0"+map[Y].substring(X + 1);
+
+                        while (JSON.stringify(guardPosition) !== JSON.stringify([-1 , -1])) {
+                            guardPosition = walkToObject(guardPosition, guardDirection);
+                            guardDirection = turnRight(guardDirection);
+
+                            let actualPosition = {position: guardPosition.slice(0), direction: guardDirection.slice(0)};
+
+                            //* Check if actualPosition repeated ==> looped
+                            if (lastPositions.filter(position => JSON.stringify(position) === JSON.stringify(actualPosition)).length > 0) {
+                                console.log("Guard looped");
+                                result += 1;
+                                break;
+                            }
+
+                            lastPositions.push(actualPosition);
+                        }
+
+                        lastPositions = [];
+                        //Guard to Start
+                        guardPosition = guardStartPosition.slice(0);
+                        guardDirection = guardStartDirection.slice(0);
+
+                        map[Y] = map[Y].substring(0, X)+"."+map[Y].substring(X + 1);
+                    }
+                })
+            });
